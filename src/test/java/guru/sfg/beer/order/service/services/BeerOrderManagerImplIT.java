@@ -28,7 +28,6 @@ import static com.github.jenspiegsa.wiremockextension.ManagedWireMockServer.with
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.okJson;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
-import static org.awaitility.Awaitility.await;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -74,6 +73,7 @@ public class BeerOrderManagerImplIT {
 
     @Test
     void testNewToAllocated() throws JsonProcessingException, InterruptedException {
+
         BeerDto beerDto = BeerDto.builder().id(beerId).upc("12345").build();
 
         wireMockServer.stubFor(get(BeerServiceImpl.BEER_UPC_PATH_V1 + "12345")
@@ -83,25 +83,14 @@ public class BeerOrderManagerImplIT {
 
         BeerOrder savedBeerOrder = beerOrderManager.newBeerOrder(beerOrder);
 
-        await().untilAsserted(() -> {
-            BeerOrder foundOrder = beerOrderRepository.findById(beerOrder.getId()).get();
-
-            assertEquals(BeerOrderStatusEnum.ALLOCATED, foundOrder.getOrderStatus());
-        });
-
-//        await().untilAsserted(() -> {
-//            BeerOrder foundOrder = beerOrderRepository.findById(beerOrder.getId()).get();
-//            BeerOrderLine line = foundOrder.getBeerOrderLines().iterator().next();
-//            assertEquals(line.getOrderQuantity(), line.getQuantityAllocated());
-//        });
+        System.out.println("Sleeping...........");
+//        Thread.sleep(5000);
+        System.out.println("Awake...........");
 
         BeerOrder savedBeerOrder2 = beerOrderRepository.findById(savedBeerOrder.getId()).get();
 
         assertNotNull(savedBeerOrder2);
         assertEquals(BeerOrderStatusEnum.ALLOCATED, savedBeerOrder2.getOrderStatus());
-//        savedBeerOrder2.getBeerOrderLines().forEach(line -> {
-//            assertEquals(line.getOrderQuantity(), line.getQuantityAllocated());
-//        });
     }
 
     public BeerOrder createBeerOrder() {
